@@ -17,6 +17,7 @@ const justStarted = ref(false)
 const roundEntries = ref([])
 const lastRoundId = ref(null)
 const roundWinnerNames = ref([])
+const gameWinner = ref(null)
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 const tableRounds = computed(() => {
   if (!currentGame.value) {
@@ -113,6 +114,7 @@ function resetSetup() {
   customStartPoints.value = ''
   currentGame.value = null
   roundEntries.value = []
+  gameWinner.value = null
 }
 
 function resetRoundEntries() {
@@ -227,6 +229,11 @@ function applyRound() {
     lastRoundId.value = null
     roundWinnerNames.value = []
   }, 2000)
+
+  const remaining = currentGame.value.players.filter((p) => p.points > 0)
+  if (remaining.length === 1) {
+    gameWinner.value = remaining[0].name
+  }
 
   resetRoundEntries()
 }
@@ -566,5 +573,22 @@ watch(
         <button class="primary-button" type="submit">Runde uebernehmen</button>
       </form>
     </section>
+
+    <Transition name="win">
+      <div v-if="gameWinner" class="win-overlay" role="dialog" aria-modal="true" aria-label="Spielende">
+        <div class="win-card">
+          <div class="win-confetti" aria-hidden="true">
+            <i v-for="n in 24" :key="n" :style="`--i:${n}`"></i>
+          </div>
+          <div class="win-burst" aria-hidden="true"></div>
+          <p class="win-eyebrow">Gewonnen!</p>
+          <p class="win-name">{{ gameWinner }}</p>
+          <p class="win-sub">hat das Spiel gewonnen</p>
+          <button class="primary-button win-btn" type="button" @click="resetSetup">
+            Neues Spiel
+          </button>
+        </div>
+      </div>
+    </Transition>
   </main>
 </template>
