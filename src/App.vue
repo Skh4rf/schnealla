@@ -89,6 +89,7 @@ function startGame() {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     startPoints: startPoints.value,
+    dealerIndex: 0,
     players: normalizedPlayers.value.map((name) => ({
       name,
       points: startPoints.value,
@@ -217,6 +218,9 @@ function applyRound() {
     createdAt: new Date().toISOString(),
     changes: changesWithScores,
   })
+
+  currentGame.value.dealerIndex =
+    ((currentGame.value.dealerIndex ?? 0) + 1) % currentGame.value.players.length
 
   resetRoundEntries()
 }
@@ -427,6 +431,10 @@ watch(
         <div>
           <p class="eyebrow">Runde zaehlen</p>
           <h1 id="game-title">Runde</h1>
+          <p class="dealer-badge">
+            <span class="dealer-label">Mischt:</span>
+            {{ currentGame.players[currentGame.dealerIndex ?? 0]?.name }}
+          </p>
         </div>
       </header>
 

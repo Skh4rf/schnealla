@@ -489,6 +489,28 @@ input:focus {
   font-size: clamp(3.7rem, 21vw, 5.8rem);
 }
 
+.dealer-badge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0 0;
+  padding: 4px 10px;
+  background: rgba(214, 158, 46, 0.15);
+  border: 1px solid rgba(214, 158, 46, 0.35);
+  border-radius: 20px;
+  color: #f3c96f;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.dealer-label {
+  color: rgba(243, 201, 111, 0.62);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+
 .back-button {
   width: max-content;
   min-height: 38px;
