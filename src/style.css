@@ -575,6 +575,44 @@ input:focus {
   color: #70d69f;
 }
 
+.score-current-row td {
+  background: rgba(214, 158, 46, 0.08);
+  border-bottom: 2px solid rgba(214, 158, 46, 0.28);
+}
+
+.score-current-cell {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.score-current-cell:hover {
+  background: rgba(214, 158, 46, 0.14);
+}
+
+.score-current-label {
+  display: block;
+  color: rgba(243, 201, 111, 0.7);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.score-edit-input {
+  width: 100%;
+  min-height: unset;
+  height: 36px;
+  padding: 4px 6px;
+  background: rgba(255, 250, 240, 0.95);
+  border: 2px solid #d69e2e;
+  border-radius: 5px;
+  box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.28);
+  color: #101816;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-align: center;
+}
+
 .round-form {
   display: grid;
   gap: 18px;
