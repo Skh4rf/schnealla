@@ -1,6 +1,11 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-
+  //TODOS: Mischelzähler (achtung dann müssen hübsch runden beachtete werden)
+  // Neue Runde also mit animation natürlich wenn jemand gewinnt
+  // ab 3 punkten kein aussetzen mehr möglich
+  // Nach rundenende graph like Civ 6
+  // zurück knopf um zum vorherigen punktestand zu kommen
+  // evtl. sogar das man auf einen wert klicken kann und dann ändern
 const storageKey = 'schnealla.currentGame'
 const startPointOptions = [15, 21, 25]
 
