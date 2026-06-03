@@ -15,6 +15,8 @@ const customStartPoints = ref('')
 const currentGame = ref(null)
 const justStarted = ref(false)
 const roundEntries = ref([])
+const lastRoundId = ref(null)
+const roundWinnerNames = ref([])
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 const tableRounds = computed(() => {
   if (!currentGame.value) {
@@ -212,11 +214,19 @@ function applyRound() {
         ?.points ?? 0,
   }))
 
+  const newRoundId = crypto.randomUUID()
   currentGame.value.rounds.unshift({
-    id: crypto.randomUUID(),
+    id: newRoundId,
     createdAt: new Date().toISOString(),
     changes: changesWithScores,
   })
+
+  lastRoundId.value = newRoundId
+  roundWinnerNames.value = changes.filter((c) => c.delta < 0).map((c) => c.name)
+  window.setTimeout(() => {
+    lastRoundId.value = null
+    roundWinnerNames.value = []
+  }, 2000)
 
   resetRoundEntries()
 }
@@ -448,9 +458,19 @@ watch(
                 <small>Start</small>
               </td>
             </tr>
-            <tr v-for="(round, index) in tableRounds" :key="round.id">
+            <tr
+              v-for="(round, index) in tableRounds"
+              :key="round.id"
+              :class="{ 'round-new': round.id === lastRoundId }"
+            >
               <td>{{ index + 1 }}</td>
-              <td v-for="player in currentGame.players" :key="player.name">
+              <td
+                v-for="player in currentGame.players"
+                :key="player.name"
+                :class="{
+                  'cell-winner': round.id === lastRoundId && roundWinnerNames.includes(player.name),
+                }"
+              >
                 <strong>{{ pointAfterRound(round, player.name) }}</strong>
                 <small
                   :class="{
