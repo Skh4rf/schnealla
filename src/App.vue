@@ -16,6 +16,56 @@ const currentGame = ref(null)
 const justStarted = ref(false)
 const roundEntries = ref([])
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
+
+const CHART_COLORS = ['#70d69f', '#f3c96f', '#f3b0a7', '#89c4f4', '#c4a0f5']
+const CW = 360
+const CH = 150
+const PL = 32
+const PR = 12
+const PT = 10
+const PB = 22
+
+const chartData = computed(() => {
+  if (!currentGame.value || currentGame.value.rounds.length === 0) return null
+
+  const chronoRounds = [...currentGame.value.rounds].reverse()
+  const maxPts = currentGame.value.startPoints
+  const total = chronoRounds.length + 1
+
+  const iW = CW - PL - PR
+  const iH = CH - PT - PB
+  const xS = (i) => PL + (i / (total - 1)) * iW
+  const yS = (p) => PT + (1 - p / maxPts) * iH
+
+  const players = currentGame.value.players.map((player, pi) => {
+    const vals = [maxPts]
+    for (const round of chronoRounds) {
+      const ch = round.changes.find((c) => c.name === player.name)
+      vals.push(ch?.pointsAfter ?? vals[vals.length - 1])
+    }
+    return {
+      name: player.name,
+      color: CHART_COLORS[pi % CHART_COLORS.length],
+      polyline: vals.map((p, i) => `${xS(i)},${yS(p)}`).join(' '),
+      lastDot: { cx: xS(vals.length - 1), cy: yS(vals[vals.length - 1]) },
+    }
+  })
+
+  const tickStep = maxPts <= 10 ? 2 : maxPts <= 25 ? 5 : 10
+  const yTicks = []
+  for (let v = 0; v <= maxPts; v += tickStep) {
+    yTicks.push({ y: yS(v), label: v })
+  }
+
+  const xStep = total <= 8 ? 1 : total <= 16 ? 2 : Math.ceil(total / 8)
+  const xTicks = []
+  for (let i = 0; i < total; i += xStep) {
+    xTicks.push({ x: xS(i), label: i })
+  }
+
+  return { players, yTicks, xTicks }
+})
+
 const tableRounds = computed(() => {
   if (!currentGame.value) {
     return []
@@ -473,6 +523,68 @@ watch(
             </tr>
           </tbody>
         </table>
+      </section>
+
+      <section v-if="chartData" class="chart-wrap" aria-label="Punkteverlauf">
+        <p class="eyebrow">Punkteverlauf</p>
+        <svg
+          class="chart-svg"
+          :viewBox="`0 0 ${CW} ${CH}`"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          <line
+            v-for="tick in chartData.yTicks"
+            :key="tick.label"
+            :x1="PL"
+            :y1="tick.y"
+            :x2="CW - PR"
+            :y2="tick.y"
+            class="chart-grid"
+          />
+          <text
+            v-for="tick in chartData.yTicks"
+            :key="`yl-${tick.label}`"
+            :x="PL - 5"
+            :y="tick.y + 4"
+            class="chart-axis-label"
+            text-anchor="end"
+          >{{ tick.label }}</text>
+          <text
+            v-for="tick in chartData.xTicks"
+            :key="`xl-${tick.label}`"
+            :x="tick.x"
+            :y="CH - 4"
+            class="chart-axis-label"
+            text-anchor="middle"
+          >{{ tick.label }}</text>
+          <polyline
+            v-for="player in chartData.players"
+            :key="player.name"
+            :points="player.polyline"
+            :stroke="player.color"
+            class="chart-line"
+            fill="none"
+          />
+          <circle
+            v-for="player in chartData.players"
+            :key="`dot-${player.name}`"
+            :cx="player.lastDot.cx"
+            :cy="player.lastDot.cy"
+            r="4"
+            :fill="player.color"
+          />
+        </svg>
+        <div class="chart-legend">
+          <span
+            v-for="player in chartData.players"
+            :key="player.name"
+            class="chart-legend-item"
+          >
+            <i :style="{ background: player.color }"></i>
+            {{ player.name }}
+          </span>
+        </div>
       </section>
 
       <form class="round-form" @submit.prevent="applyRound">
