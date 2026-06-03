@@ -230,9 +230,11 @@ function applyRound() {
     roundWinnerNames.value = []
   }, 2000)
 
-  const remaining = currentGame.value.players.filter((p) => p.points > 0)
-  if (remaining.length === 1) {
-    gameWinner.value = remaining[0].name
+  if (!gameWinner.value) {
+    const winner = currentGame.value.players.find(
+      (p) => p.points === 0 && changes.find((c) => c.name === p.name)?.delta < 0,
+    )
+    if (winner) gameWinner.value = winner.name
   }
 
   resetRoundEntries()
