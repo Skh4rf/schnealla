@@ -190,6 +190,7 @@ function applyRound() {
     name: entry.name,
     satOut: entry.satOut,
     delta: entryDelta(entry),
+    pointsBefore: currentGame.value.players.find((p) => p.name === entry.name)?.points ?? 0,
   }))
 
   currentGame.value.players = currentGame.value.players.map((player) => {
@@ -218,6 +219,32 @@ function applyRound() {
     changes: changesWithScores,
   })
 
+  resetRoundEntries()
+}
+
+function undoLastRound() {
+  if (!currentGame.value || currentGame.value.rounds.length === 0) return
+
+  const lastRound = currentGame.value.rounds[0]
+
+  currentGame.value.players = currentGame.value.players.map((player) => {
+    const change = lastRound.changes.find((c) => c.name === player.name)
+    if (!change) return player
+
+    const prevPoints =
+      change.pointsBefore !== undefined
+        ? change.pointsBefore
+        : Math.max(0, change.pointsAfter - change.delta)
+
+    return {
+      ...player,
+      points: prevPoints,
+      roundsWon: Math.max(0, player.roundsWon - (change.delta < 0 ? 1 : 0)),
+      timesSchnellt: Math.max(0, player.timesSchnellt - (change.delta >= 5 ? 1 : 0)),
+    }
+  })
+
+  currentGame.value.rounds.shift()
   resetRoundEntries()
 }
 
@@ -421,9 +448,20 @@ watch(
 
     <section v-else class="game-stage" aria-labelledby="game-title">
       <header class="game-header">
-        <button class="back-button" type="button" @click="resetSetup">
-          Neues Spiel
-        </button>
+        <div class="game-header-actions">
+          <button class="back-button" type="button" @click="resetSetup">
+            Neues Spiel
+          </button>
+          <button
+            v-if="currentGame.rounds.length > 0"
+            class="undo-button"
+            type="button"
+            @click="undoLastRound"
+            title="Letzte Runde rueckgaengig machen"
+          >
+            &#8617; Zurueck
+          </button>
+        </div>
         <div>
           <p class="eyebrow">Runde zaehlen</p>
           <h1 id="game-title">Runde</h1>
