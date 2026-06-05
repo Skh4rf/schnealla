@@ -39,16 +39,10 @@ const chartData = computed(() => {
   if (!currentGame.value || currentGame.value.rounds.length === 0) return null
 
   const chronoRounds = [...currentGame.value.rounds].reverse()
-  const maxPts = currentGame.value.startPoints
   const total = chronoRounds.length + 1
-
-  const iW = CW - PL - PR
-  const iH = CH - PT - PB
-  const xS = (i) => PL + (i / (total - 1)) * iW
-  const yS = (p) => PT + (1 - p / maxPts) * iH
-
-  const players = currentGame.value.players.map((player, pi) => {
-    const vals = [maxPts]
+  const startPoints = currentGame.value.startPoints
+  const playerSeries = currentGame.value.players.map((player, pi) => {
+    const vals = [startPoints]
     for (const round of chronoRounds) {
       const ch = round.changes.find((c) => c.name === player.name)
       vals.push(ch?.pointsAfter ?? vals[vals.length - 1])
@@ -56,12 +50,32 @@ const chartData = computed(() => {
     return {
       name: player.name,
       color: CHART_COLORS[pi % CHART_COLORS.length],
-      polyline: vals.map((p, i) => `${xS(i)},${yS(p)}`).join(' '),
-      lastDot: { cx: xS(vals.length - 1), cy: yS(vals[vals.length - 1]) },
+      vals,
     }
   })
 
-  const tickStep = maxPts <= 10 ? 2 : maxPts <= 25 ? 5 : 10
+  const highestPoint = Math.max(
+    startPoints,
+    ...playerSeries.flatMap((player) => player.vals),
+  )
+  const tickStep = highestPoint <= 10 ? 2 : highestPoint <= 25 ? 5 : 10
+  const maxPts = Math.ceil(highestPoint / tickStep) * tickStep
+
+  const iW = CW - PL - PR
+  const iH = CH - PT - PB
+  const xS = (i) => PL + (i / (total - 1)) * iW
+  const yS = (p) => PT + (1 - p / maxPts) * iH
+
+  const players = playerSeries.map((player) => ({
+    name: player.name,
+    color: player.color,
+    polyline: player.vals.map((p, i) => `${xS(i)},${yS(p)}`).join(' '),
+    lastDot: {
+      cx: xS(player.vals.length - 1),
+      cy: yS(player.vals[player.vals.length - 1]),
+    },
+  }))
+
   const yTicks = []
   for (let v = 0; v <= maxPts; v += tickStep) {
     yTicks.push({ y: yS(v), label: v })

@@ -706,7 +706,7 @@ input:focus {
   position: relative;
   display: grid;
   gap: 10px;
-  width: min(100%, 340px);
+  width: min(100%, 420px);
   padding: 48px 32px 36px;
   text-align: center;
   background: linear-gradient(160deg, #16412f 0%, #0d2c24 100%);
@@ -772,7 +772,12 @@ input:focus {
   position: relative;
   z-index: 1;
   margin-top: 10px;
+  padding: 0;
+  background: rgba(255, 247, 223, 0.1);
+  border: 1px solid rgba(255, 247, 223, 0.18);
+  border-radius: 7px;
   animation: rise-in 0.4s ease-out 0.7s both;
+  overflow: hidden;
 }
 
 .win-chart summary {
@@ -780,9 +785,6 @@ input:focus {
   min-height: 42px;
   place-items: center;
   color: #fff7df;
-  background: rgba(255, 247, 223, 0.1);
-  border: 1px solid rgba(255, 247, 223, 0.18);
-  border-radius: 7px;
   font-size: 0.9rem;
   font-weight: 900;
   list-style: none;
@@ -803,11 +805,7 @@ input:focus {
 }
 
 .chart-wrap {
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(4, 17, 15, 0.32);
-  border: 1px solid rgba(255, 247, 223, 0.14);
-  border-radius: 7px;
+  padding: 0 10px 12px;
 }
 
 .chart-svg {
