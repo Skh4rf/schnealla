@@ -1,5 +1,11 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
+
+const vFocus = {
+  mounted(el) {
+    nextTick(() => el.focus())
+  },
+}
   //TODOS: Mischelzähler (achtung dann müssen hübsch runden beachtete werden)
   // Neue Runde also mit animation natürlich wenn jemand gewinnt
   // ab 3 punkten kein aussetzen mehr möglich
@@ -15,6 +21,7 @@ const customStartPoints = ref('')
 const currentGame = ref(null)
 const justStarted = ref(false)
 const roundEntries = ref([])
+const scoreEdit = ref(null)
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 const tableRounds = computed(() => {
   if (!currentGame.value) {
@@ -260,6 +267,23 @@ function undoLastRound() {
   resetRoundEntries()
 }
 
+function startScoreEdit(playerName, currentPoints) {
+  scoreEdit.value = { playerName, value: currentPoints }
+}
+
+function commitScoreEdit() {
+  if (!scoreEdit.value || !currentGame.value) return
+  const { playerName, value } = scoreEdit.value
+  const parsed = Number(value)
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    scoreEdit.value = null
+    return
+  }
+  const player = currentGame.value.players.find((p) => p.name === playerName)
+  if (player) player.points = parsed
+  scoreEdit.value = null
+}
+
 onMounted(() => {
   const savedGame = localStorage.getItem(storageKey)
 
@@ -495,6 +519,35 @@ watch(
             </tr>
           </thead>
           <tbody>
+            <tr class="score-current-row">
+              <td>
+                <small class="score-current-label">Jetzt</small>
+              </td>
+              <td
+                v-for="player in currentGame.players"
+                :key="player.name"
+                class="score-current-cell"
+                @click="startScoreEdit(player.name, player.points)"
+              >
+                <template v-if="scoreEdit?.playerName === player.name">
+                  <input
+                    class="score-edit-input"
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                    v-model="scoreEdit.value"
+                    @keydown.enter="commitScoreEdit"
+                    @keydown.escape="scoreEdit = null"
+                    @blur="commitScoreEdit"
+                    v-focus
+                  />
+                </template>
+                <template v-else>
+                  <strong>{{ player.points }}</strong>
+                </template>
+              </td>
+            </tr>
             <tr v-if="!tableRounds.length">
               <td>0</td>
               <td v-for="player in currentGame.players" :key="player.name">
