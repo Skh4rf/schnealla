@@ -17,12 +17,24 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
+  width: 100%;
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
   background: #071c18;
+  overflow-x: hidden;
+}
+
+#app {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 button,
@@ -68,9 +80,10 @@ button:disabled {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 22px 18px 28px;
+  overflow: hidden;
+  padding: 20px 18px 26px;
   align-content: start;
-  gap: 24px;
+  gap: 22px;
 }
 
 .game-stage {
@@ -85,8 +98,8 @@ button:disabled {
 
 .setup-heading {
   position: relative;
-  min-height: 168px;
-  padding-top: 30px;
+  min-height: 150px;
+  padding-top: 28px;
 }
 
 .setup-heading .eyebrow,
@@ -114,12 +127,16 @@ h1 {
   margin: 0;
   color: #fff7df;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(4rem, 23vw, 6.7rem);
+  font-size: clamp(3.8rem, 19vw, 5.2rem);
   font-weight: 500;
   line-height: 0.82;
   text-shadow:
     0 2px 0 rgba(7, 28, 24, 0.5),
     0 12px 32px rgba(0, 0, 0, 0.36);
+}
+
+.setup-heading h1 {
+  max-width: 100%;
 }
 
 h2 {
@@ -131,10 +148,10 @@ h2 {
 .card-fan {
   position: absolute;
   top: 0;
-  right: -6px;
+  right: 0;
   z-index: 1;
-  width: 148px;
-  height: 116px;
+  width: 124px;
+  height: 102px;
   opacity: 0.78;
   pointer-events: none;
 }
@@ -1018,6 +1035,10 @@ input:focus {
 
   .setup-heading {
     min-height: 205px;
+  }
+
+  .setup-heading h1 {
+    font-size: clamp(4rem, 23vw, 6.7rem);
   }
 
   .card-fan {
