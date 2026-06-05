@@ -706,7 +706,7 @@ input:focus {
   position: relative;
   display: grid;
   gap: 10px;
-  width: min(100%, 340px);
+  width: min(100%, 420px);
   padding: 48px 32px 36px;
   text-align: center;
   background: linear-gradient(160deg, #16412f 0%, #0d2c24 100%);
@@ -766,6 +766,93 @@ input:focus {
   color: rgba(247, 243, 232, 0.52);
   font-size: 0.88rem;
   animation: rise-in 0.4s ease-out 0.62s both;
+}
+
+.win-chart {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  padding: 0;
+  background: rgba(255, 247, 223, 0.1);
+  border: 1px solid rgba(255, 247, 223, 0.18);
+  border-radius: 7px;
+  animation: rise-in 0.4s ease-out 0.7s both;
+  overflow: hidden;
+}
+
+.win-chart summary {
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  color: #fff7df;
+  font-size: 0.9rem;
+  font-weight: 900;
+  list-style: none;
+}
+
+.win-chart summary::-webkit-details-marker {
+  display: none;
+}
+
+.win-chart summary::after {
+  content: "+";
+  margin-left: 8px;
+  color: #f3c96f;
+}
+
+.win-chart[open] summary::after {
+  content: "-";
+}
+
+.chart-wrap {
+  padding: 0 10px 12px;
+}
+
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-grid {
+  stroke: rgba(255, 247, 223, 0.1);
+  stroke-width: 1;
+}
+
+.chart-line {
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-axis-label {
+  fill: rgba(247, 243, 232, 0.45);
+  font-size: 10px;
+  font-family: inherit;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.chart-legend-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: rgba(247, 243, 232, 0.82);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.chart-legend-item i {
+  display: block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
 }
 
 @keyframes rise-in {
