@@ -485,8 +485,47 @@ input:focus {
   gap: 18px;
 }
 
+.game-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.undo-button {
+  min-height: 38px;
+  padding: 0 12px;
+  color: rgba(255, 247, 223, 0.72);
+  background: rgba(255, 247, 223, 0.07);
+  border: 1px solid rgba(255, 247, 223, 0.15);
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
 .game-header h1 {
   font-size: clamp(3.7rem, 21vw, 5.8rem);
+}
+
+.dealer-badge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0 0;
+  padding: 4px 10px;
+  background: rgba(214, 158, 46, 0.15);
+  border: 1px solid rgba(214, 158, 46, 0.35);
+  border-radius: 20px;
+  color: #f3c96f;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.dealer-label {
+  color: rgba(243, 201, 111, 0.62);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
 }
 
 .back-button {
@@ -597,6 +636,44 @@ input:focus {
 
 .round-table td.cell-winner strong {
   color: #70d69f;
+}
+
+.score-current-row td {
+  background: rgba(214, 158, 46, 0.08);
+  border-bottom: 2px solid rgba(214, 158, 46, 0.28);
+}
+
+.score-current-cell {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.score-current-cell:hover {
+  background: rgba(214, 158, 46, 0.14);
+}
+
+.score-current-label {
+  display: block;
+  color: rgba(243, 201, 111, 0.7);
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.score-edit-input {
+  width: 100%;
+  min-height: unset;
+  height: 36px;
+  padding: 4px 6px;
+  background: rgba(255, 250, 240, 0.95);
+  border: 2px solid #d69e2e;
+  border-radius: 5px;
+  box-shadow: 0 0 0 3px rgba(214, 158, 46, 0.28);
+  color: #101816;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-align: center;
 }
 
 .round-form {

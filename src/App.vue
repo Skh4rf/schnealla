@@ -1,5 +1,11 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
+
+const vFocus = {
+  mounted(el) {
+    nextTick(() => el.focus())
+  },
+}
   //TODOS: Mischelzähler (achtung dann müssen hübsch runden beachtete werden)
   // Neue Runde also mit animation natürlich wenn jemand gewinnt
   // ab 3 punkten kein aussetzen mehr möglich
@@ -18,6 +24,7 @@ const roundEntries = ref([])
 const lastRoundId = ref(null)
 const roundWinnerNames = ref([])
 const gameWinner = ref(null)
+const scoreEdit = ref(null)
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 const tableRounds = computed(() => {
   if (!currentGame.value) {
@@ -92,6 +99,7 @@ function startGame() {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     startPoints: startPoints.value,
+    dealerIndex: 0,
     players: normalizedPlayers.value.map((name) => ({
       name,
       points: startPoints.value,
@@ -144,11 +152,19 @@ function decreaseEntry(entry) {
   entry.delta = entry.delta > 0 ? Math.max(0, entry.delta - 5) : entry.delta - 1
 }
 
-function toggleSatOut(entry) {
-  if (!entry.satOut && satOutStreak(entry.name) >= 2) {
-    return
-  }
+function playerPoints(playerName) {
+  return currentGame.value?.players.find((p) => p.name === playerName)?.points ?? 0
+}
 
+function canSatOut(entry) {
+  if (entry.satOut) return true
+  if (satOutStreak(entry.name) >= 2) return false
+  if (playerPoints(entry.name) <= 3) return false
+  return true
+}
+
+function toggleSatOut(entry) {
+  if (!canSatOut(entry)) return
   entry.satOut = !entry.satOut
   entry.delta = 0
 }
@@ -194,6 +210,7 @@ function applyRound() {
     name: entry.name,
     satOut: entry.satOut,
     delta: entryDelta(entry),
+    pointsBefore: currentGame.value.players.find((p) => p.name === entry.name)?.points ?? 0,
   }))
 
   currentGame.value.players = currentGame.value.players.map((player) => {
@@ -237,7 +254,53 @@ function applyRound() {
     if (winner) gameWinner.value = winner.name
   }
 
+  currentGame.value.dealerIndex =
+    ((currentGame.value.dealerIndex ?? 0) + 1) % currentGame.value.players.length
+
   resetRoundEntries()
+}
+
+function undoLastRound() {
+  if (!currentGame.value || currentGame.value.rounds.length === 0) return
+
+  const lastRound = currentGame.value.rounds[0]
+
+  currentGame.value.players = currentGame.value.players.map((player) => {
+    const change = lastRound.changes.find((c) => c.name === player.name)
+    if (!change) return player
+
+    const prevPoints =
+      change.pointsBefore !== undefined
+        ? change.pointsBefore
+        : Math.max(0, change.pointsAfter - change.delta)
+
+    return {
+      ...player,
+      points: prevPoints,
+      roundsWon: Math.max(0, player.roundsWon - (change.delta < 0 ? 1 : 0)),
+      timesSchnellt: Math.max(0, player.timesSchnellt - (change.delta >= 5 ? 1 : 0)),
+    }
+  })
+
+  currentGame.value.rounds.shift()
+  resetRoundEntries()
+}
+
+function startScoreEdit(playerName, currentPoints) {
+  scoreEdit.value = { playerName, value: currentPoints }
+}
+
+function commitScoreEdit() {
+  if (!scoreEdit.value || !currentGame.value) return
+  const { playerName, value } = scoreEdit.value
+  const parsed = Number(value)
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    scoreEdit.value = null
+    return
+  }
+  const player = currentGame.value.players.find((p) => p.name === playerName)
+  if (player) player.points = parsed
+  scoreEdit.value = null
 }
 
 onMounted(() => {
@@ -440,12 +503,27 @@ watch(
 
     <section v-else class="game-stage" aria-labelledby="game-title">
       <header class="game-header">
-        <button class="back-button" type="button" @click="resetSetup">
-          Neues Spiel
-        </button>
+        <div class="game-header-actions">
+          <button class="back-button" type="button" @click="resetSetup">
+            Neues Spiel
+          </button>
+          <button
+            v-if="currentGame.rounds.length > 0"
+            class="undo-button"
+            type="button"
+            @click="undoLastRound"
+            title="Letzte Runde rueckgaengig machen"
+          >
+            &#8617; Zurueck
+          </button>
+        </div>
         <div>
           <p class="eyebrow">Runde zaehlen</p>
           <h1 id="game-title">Runde</h1>
+          <p class="dealer-badge">
+            <span class="dealer-label">Mischt:</span>
+            {{ currentGame.players[currentGame.dealerIndex ?? 0]?.name }}
+          </p>
         </div>
       </header>
 
@@ -460,6 +538,35 @@ watch(
             </tr>
           </thead>
           <tbody>
+            <tr class="score-current-row">
+              <td>
+                <small class="score-current-label">Jetzt</small>
+              </td>
+              <td
+                v-for="player in currentGame.players"
+                :key="player.name"
+                class="score-current-cell"
+                @click="startScoreEdit(player.name, player.points)"
+              >
+                <template v-if="scoreEdit?.playerName === player.name">
+                  <input
+                    class="score-edit-input"
+                    type="number"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                    v-model="scoreEdit.value"
+                    @keydown.enter="commitScoreEdit"
+                    @keydown.escape="scoreEdit = null"
+                    @blur="commitScoreEdit"
+                    v-focus
+                  />
+                </template>
+                <template v-else>
+                  <strong>{{ player.points }}</strong>
+                </template>
+              </td>
+            </tr>
             <tr v-if="!tableRounds.length">
               <td>0</td>
               <td v-for="player in currentGame.players" :key="player.name">
@@ -536,7 +643,7 @@ watch(
                 <button
                   class="sat-out-button"
                   :class="{ active: entry.satOut }"
-                  :disabled="!entry.satOut && satOutStreak(entry.name) >= 2"
+                  :disabled="!canSatOut(entry)"
                   type="button"
                   @click="toggleSatOut(entry)"
                 >
