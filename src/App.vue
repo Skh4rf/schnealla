@@ -141,11 +141,19 @@ function decreaseEntry(entry) {
   entry.delta = entry.delta > 0 ? Math.max(0, entry.delta - 5) : entry.delta - 1
 }
 
-function toggleSatOut(entry) {
-  if (!entry.satOut && satOutStreak(entry.name) >= 2) {
-    return
-  }
+function playerPoints(playerName) {
+  return currentGame.value?.players.find((p) => p.name === playerName)?.points ?? 0
+}
 
+function canSatOut(entry) {
+  if (entry.satOut) return true
+  if (satOutStreak(entry.name) >= 2) return false
+  if (playerPoints(entry.name) <= 3) return false
+  return true
+}
+
+function toggleSatOut(entry) {
+  if (!canSatOut(entry)) return
   entry.satOut = !entry.satOut
   entry.delta = 0
 }
@@ -515,7 +523,7 @@ watch(
                 <button
                   class="sat-out-button"
                   :class="{ active: entry.satOut }"
-                  :disabled="!entry.satOut && satOutStreak(entry.name) >= 2"
+                  :disabled="!canSatOut(entry)"
                   type="button"
                   @click="toggleSatOut(entry)"
                 >
