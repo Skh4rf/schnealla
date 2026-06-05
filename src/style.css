@@ -20,7 +20,9 @@
 body {
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
+  background: #071c18;
 }
 
 button,
@@ -54,21 +56,30 @@ button:disabled {
 
 .app-shell {
   display: grid;
+  width: 100%;
   min-height: 100vh;
-  padding: 22px 18px 28px;
-  place-items: center;
+  min-height: 100dvh;
+  place-items: stretch;
 }
 
 .setup-stage {
   position: relative;
   display: grid;
-  width: min(100%, 430px);
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 22px 18px 28px;
+  align-content: start;
   gap: 24px;
 }
 
 .game-stage {
   display: grid;
-  width: min(100%, 390px);
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 22px 18px 28px;
+  align-content: start;
   gap: 20px;
 }
 
@@ -990,14 +1001,19 @@ input:focus {
 @media (min-width: 760px) {
   .app-shell {
     padding: 42px;
+    place-items: center;
   }
 
   .setup-stage {
     width: min(100%, 520px);
+    min-height: 0;
+    padding: 0;
   }
 
   .game-stage {
     width: min(100%, 520px);
+    min-height: 0;
+    padding: 0;
   }
 
   .setup-heading {
