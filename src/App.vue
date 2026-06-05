@@ -21,6 +21,9 @@ const customStartPoints = ref('')
 const currentGame = ref(null)
 const justStarted = ref(false)
 const roundEntries = ref([])
+const lastRoundId = ref(null)
+const roundWinnerNames = ref([])
+const gameWinner = ref(null)
 const scoreEdit = ref(null)
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 const tableRounds = computed(() => {
@@ -119,6 +122,7 @@ function resetSetup() {
   customStartPoints.value = ''
   currentGame.value = null
   roundEntries.value = []
+  gameWinner.value = null
 }
 
 function resetRoundEntries() {
@@ -229,11 +233,26 @@ function applyRound() {
         ?.points ?? 0,
   }))
 
+  const newRoundId = crypto.randomUUID()
   currentGame.value.rounds.unshift({
-    id: crypto.randomUUID(),
+    id: newRoundId,
     createdAt: new Date().toISOString(),
     changes: changesWithScores,
   })
+
+  lastRoundId.value = newRoundId
+  roundWinnerNames.value = changes.filter((c) => c.delta < 0).map((c) => c.name)
+  window.setTimeout(() => {
+    lastRoundId.value = null
+    roundWinnerNames.value = []
+  }, 2000)
+
+  if (!gameWinner.value) {
+    const winner = currentGame.value.players.find(
+      (p) => p.points === 0 && changes.find((c) => c.name === p.name)?.delta < 0,
+    )
+    if (winner) gameWinner.value = winner.name
+  }
 
   currentGame.value.dealerIndex =
     ((currentGame.value.dealerIndex ?? 0) + 1) % currentGame.value.players.length
@@ -555,9 +574,19 @@ watch(
                 <small>Start</small>
               </td>
             </tr>
-            <tr v-for="(round, index) in tableRounds" :key="round.id">
+            <tr
+              v-for="(round, index) in tableRounds"
+              :key="round.id"
+              :class="{ 'round-new': round.id === lastRoundId }"
+            >
               <td>{{ index + 1 }}</td>
-              <td v-for="player in currentGame.players" :key="player.name">
+              <td
+                v-for="player in currentGame.players"
+                :key="player.name"
+                :class="{
+                  'cell-winner': round.id === lastRoundId && roundWinnerNames.includes(player.name),
+                }"
+              >
                 <strong>{{ pointAfterRound(round, player.name) }}</strong>
                 <small
                   :class="{
@@ -653,5 +682,22 @@ watch(
         <button class="primary-button" type="submit">Runde uebernehmen</button>
       </form>
     </section>
+
+    <Transition name="win">
+      <div v-if="gameWinner" class="win-overlay" role="dialog" aria-modal="true" aria-label="Spielende">
+        <div class="win-card">
+          <div class="win-confetti" aria-hidden="true">
+            <i v-for="n in 24" :key="n" :style="`--i:${n}`"></i>
+          </div>
+          <div class="win-burst" aria-hidden="true"></div>
+          <p class="win-eyebrow">Gewonnen!</p>
+          <p class="win-name">{{ gameWinner }}</p>
+          <p class="win-sub">hat das Spiel gewonnen</p>
+          <button class="primary-button win-btn" type="button" @click="resetSetup">
+            Neues Spiel
+          </button>
+        </div>
+      </div>
+    </Transition>
   </main>
 </template>
