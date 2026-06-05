@@ -2,7 +2,7 @@
 
 Kompakter Punktezaehler fuer Schnealla-Runden, gebaut mit Vue und Vite.
 
-Live: https://skh4rf.github.io/schnealla/
+Live: https://schnealla.j-metzler.at/
 
 ## Features
 
@@ -40,10 +40,10 @@ npm.cmd run preview
 
 ## Deployment
 
-Das Projekt ist fuer GitHub Pages unter `/schnealla/` konfiguriert:
+Das Projekt laeuft ueber GitHub Pages mit Custom Domain und ist fuer den Root-Pfad konfiguriert:
 
 ```js
-base: '/schnealla/'
+base: '/'
 ```
 
 Deployments laufen ueber GitHub Actions aus `.github/workflows/deploy.yml`.
