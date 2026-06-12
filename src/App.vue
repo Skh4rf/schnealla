@@ -126,14 +126,14 @@ const validationMessage = computed(() => {
   }
 
   if (duplicateNames.value) {
-    return 'Spielernamen muessen eindeutig sein.'
+    return 'Spielernamen müssen eindeutig sein.'
   }
 
   if (!Number.isInteger(startPoints.value) || startPoints.value <= 0) {
-    return 'Startpunkte muessen eine ganze Zahl groesser 0 sein.'
+    return 'Startpunkte müssen eine ganze Zahl größer 0 sein.'
   }
 
-  return 'Bereit fuer die erste Runde.'
+  return 'Bereit für die erste Runde.'
 })
 
 function addPlayer() {
@@ -472,8 +472,8 @@ watch(
             :disabled="players.length >= 5"
             type="button"
             @click="addPlayer"
-            title="Spieler hinzufuegen"
-            aria-label="Spieler hinzufuegen"
+            title="Spieler hinzufügen"
+            aria-label="Spieler hinzufügen"
           >
             +
           </button>
@@ -570,13 +570,13 @@ watch(
             class="undo-button"
             type="button"
             @click="undoLastRound"
-            title="Letzte Runde rueckgaengig machen"
+            title="Letzte Runde rückgängig machen"
           >
-            &#8617; Zurueck
+            &#8617; Zurück
           </button>
         </div>
         <div>
-          <p class="eyebrow">Runde zaehlen</p>
+          <p class="eyebrow">Runde zählen</p>
           <h1 id="game-title">Runde</h1>
           <p class="dealer-badge">
             <span class="dealer-label">Mischt:</span>
@@ -727,7 +727,7 @@ watch(
                 <button
                   class="step-button"
                   type="button"
-                  aria-label="Punkte erhoehen"
+                  aria-label="Punkte erhöhen"
                   @click="increaseEntry(entry)"
                 >
                   +
@@ -737,7 +737,7 @@ watch(
           </div>
         </fieldset>
 
-        <button class="primary-button" type="submit">Runde uebernehmen</button>
+        <button class="primary-button" type="submit">Runde übernehmen</button>
       </form>
     </section>
 
