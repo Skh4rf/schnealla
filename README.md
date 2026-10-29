@@ -10,6 +10,7 @@ Live: https://schnealla.j-metzler.at/
 - frei waehlbare Startpunkte
 - Rundentabelle mit aktuellem Punktestand
 - Mischelzaehler
+- Spielerreihenfolge und erster Mischer bis zur ersten uebernommenen Runde aenderbar
 - Aussetzen-Regeln
 - letzte Runde rueckgaengig machen
 - Punktestand per Klick bearbeiten
