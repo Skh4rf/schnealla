@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { createGameStorage, preferenceKey } from './game-storage.js'
+import { moveGamePlayer } from './player-order.js'
 
 const vFocus = {
   mounted(el) {
@@ -23,6 +24,7 @@ const lastRoundId = ref(null)
 const roundWinnerNames = ref([])
 const gameWinner = ref(null)
 const scoreEdit = ref(null)
+const playerOrderMessage = ref('')
 const activeView = computed(() => (currentGame.value ? 'game' : 'setup'))
 
 const CHART_COLORS = ['#70d69f', '#f3c96f', '#f3b0a7', '#89c4f4', '#c4a0f5']
@@ -172,6 +174,7 @@ function startGame() {
   }
 
   resetRoundEntries()
+  playerOrderMessage.value = ''
   justStarted.value = true
   window.setTimeout(() => {
     justStarted.value = false
@@ -185,6 +188,16 @@ function resetSetup() {
   currentGame.value = null
   roundEntries.value = []
   gameWinner.value = null
+  playerOrderMessage.value = ''
+}
+
+function movePlayer(index, direction) {
+  const reordered = moveGamePlayer(currentGame.value, roundEntries.value, index, direction)
+  if (!reordered) return
+  const name = currentGame.value.players[index].name
+  currentGame.value = reordered.game
+  roundEntries.value = reordered.entries
+  playerOrderMessage.value = `${name} auf Position ${index + direction + 1} verschoben.`
 }
 
 function resetRoundEntries() {
@@ -659,6 +672,46 @@ watch(
           </p>
         </div>
       </header>
+
+      <details v-if="currentGame.rounds.length === 0" class="player-order">
+        <summary>Spielerreihenfolge ändern</summary>
+        <p class="player-order-hint">
+          Ordne die Spieler so, wie sie nacheinander mischen. Das geht bis zur ersten übernommenen Runde.
+        </p>
+        <ol class="player-order-list">
+          <li v-for="(player, index) in currentGame.players" :key="player.name">
+            <span class="player-order-name">{{ index + 1 }}. {{ player.name }}</span>
+            <div class="player-order-buttons">
+              <button
+                type="button"
+                :disabled="index === 0"
+                :aria-label="`${player.name} nach vorne verschieben`"
+                @click="movePlayer(index, -1)"
+              >↑</button>
+              <button
+                type="button"
+                :disabled="index === currentGame.players.length - 1"
+                :aria-label="`${player.name} nach hinten verschieben`"
+                @click="movePlayer(index, 1)"
+              >↓</button>
+            </div>
+          </li>
+        </ol>
+        <div class="first-dealer">
+          <label for="first-dealer">Mischt zuerst</label>
+          <select
+            id="first-dealer"
+            :value="currentGame.dealerIndex ?? 0"
+            @change="currentGame.dealerIndex = Number($event.target.value)"
+          >
+            <option v-for="(player, index) in currentGame.players" :key="player.name" :value="index">
+              {{ player.name }}
+            </option>
+          </select>
+        </div>
+        <p class="player-order-hint">Beim Verschieben bleibt ausgewählt, wer zuerst mischt.</p>
+        <p class="sr-only" role="status">{{ playerOrderMessage }}</p>
+      </details>
 
       <section class="round-table-wrap" aria-label="Punktetabelle">
         <table class="round-table">

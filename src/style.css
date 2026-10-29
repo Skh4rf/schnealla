@@ -169,6 +169,82 @@
   outline-offset: 4px;
 }
 
+.player-order {
+  padding: 16px;
+  border: 1px solid rgba(247, 243, 232, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.player-order summary {
+  cursor: pointer;
+  color: #fff7df;
+  font-weight: 700;
+}
+
+.player-order-hint {
+  margin: 14px 0 0;
+  color: #d4c8a7;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.player-order-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 16px 0;
+  list-style: none;
+}
+
+.player-order-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.player-order-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.player-order-buttons {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.player-order-buttons button,
+.first-dealer select {
+  min-height: 44px;
+  border: 1px solid rgba(247, 243, 232, 0.3);
+  border-radius: 8px;
+  color: #fff7df;
+  background: #123a2e;
+}
+
+.player-order-buttons button {
+  width: 44px;
+  font-size: 1.2rem;
+}
+
+.first-dealer {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.first-dealer select {
+  width: 100%;
+  padding: 8px 12px;
+}
+
+.player-order :focus-visible {
+  outline: 2px solid #f3c96f;
+  outline-offset: 4px;
+}
+
 .legal-intro {
   margin: 20px 0 32px;
   color: #d4c8a7;
