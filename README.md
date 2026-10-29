@@ -15,7 +15,8 @@ Live: https://schnealla.j-metzler.at/
 - Punktestand per Klick bearbeiten
 - Rundengewinn- und Gewinner-Animation
 - Punkteverlauf am Spielende in der Gewinnerkarte
-- lokales Speichern im Browser
+- freiwilliges lokales Speichern im Browser (standardmaessig aus), Laden und Loeschen gespeicherter Daten
+- Impressum und Datenschutzerklaerung
 
 ## Lokal starten
 
@@ -47,3 +48,20 @@ base: '/'
 ```
 
 Deployments laufen ueber GitHub Actions aus `.github/workflows/deploy.yml`.
+
+## Datenschutz
+
+Die Anwendung liest oder schreibt Spielinformationen erst nach Aktivierung der
+freiwilligen Speicheroption im localStorage. Die Option ist bei jedem Seitenaufruf
+standardmaessig aus. Abwaehlen oder "Gespeicherte Daten loeschen" entfernt den
+Eintrag; das laufende Spiel bleibt im Arbeitsspeicher erhalten. Es werden keine
+Analyse- oder Werbedienste eingebunden.
+
+Datenschutzkontakt: schnealla@j-metzler.at. Die Weiterleitung muss vor der
+Veroeffentlichung eingerichtet und auf Zustellung geprueft sein.
+
+Tests fuer Speicherung und Widerruf:
+
+```bash
+node --test tests/game-storage.test.js
+```

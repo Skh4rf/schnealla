@@ -20,6 +20,7 @@
 }
 
 .site-footer a,
+.legal-shell a,
 .legal-back {
   color: #d4c8a7;
   text-decoration: underline;
@@ -27,11 +28,15 @@
 }
 
 .site-footer a:hover,
+.legal-shell a:hover,
 .legal-back:hover {
   color: #fff7df;
 }
 
 .site-footer a:focus-visible,
+.legal-shell a:focus-visible,
+.storage-delete:focus-visible,
+.storage-preference input:focus-visible,
 .legal-back:focus-visible {
   outline: 2px solid #f3c96f;
   outline-offset: 6px;
@@ -54,6 +59,57 @@
 .legal-page .legal-shell h1 {
   font-size: clamp(2.8rem, 12vw, 4.5rem);
   line-height: 1.1;
+}
+
+.legal-page .legal-shell .privacy-title {
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  hyphens: auto;
+}
+
+.site-footer nav {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.storage-preference {
+  width: min(100%, 520px);
+  margin: 0 auto 24px;
+  text-align: left;
+  line-height: 1.6;
+}
+
+.storage-preference label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.storage-preference input {
+  flex: 0 0 auto;
+  margin: 5px 0 0;
+  width: 18px;
+  height: 18px;
+  accent-color: #70d69f;
+}
+
+.storage-preference p {
+  margin: 10px 0;
+  color: #d4c8a7;
+}
+
+.storage-delete {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid rgba(247, 243, 232, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: #f7f3e8;
+}
+
+.storage-delete:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .legal-intro {

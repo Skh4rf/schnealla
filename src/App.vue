@@ -1,12 +1,15 @@
 <script setup>
-import { computed, onMounted, ref, watch, nextTick } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
+import { createGameStorage } from './game-storage.js'
 
 const vFocus = {
   mounted(el) {
     nextTick(() => el.focus())
   },
 }
-const storageKey = 'schnealla.currentGame'
+const gameStorage = createGameStorage(() => window.localStorage)
+const rememberGame = ref(false)
+const storageMessage = ref('')
 const startPointOptions = [15, 21, 25]
 
 const players = ref(['', '', ''])
@@ -361,24 +364,54 @@ function commitScoreEdit() {
   scoreEdit.value = null
 }
 
-onMounted(() => {
-  const savedGame = localStorage.getItem(storageKey)
+function reportStorageError() {
+  rememberGame.value = false
+  gameStorage.setEnabled(false)
+  storageMessage.value = 'Browserspeicher nicht verfügbar. Du kannst ohne Speichern weiterspielen. Vorhandene Daten kannst du in den Website-Daten deines Browsers löschen.'
+}
 
-  if (savedGame) {
-    currentGame.value = JSON.parse(savedGame)
-    resetRoundEntries()
+function deleteSavedGame() {
+  rememberGame.value = false
+  try {
+    gameStorage.clear()
+    storageMessage.value = 'Gespeicherte Daten gelöscht. Das laufende Spiel bleibt bis zum Verlassen der Seite erhalten.'
+  } catch {
+    reportStorageError()
   }
-})
+}
+
+function changeStoragePreference(event) {
+  if (!event.target.checked) {
+    deleteSavedGame()
+    return
+  }
+
+  try {
+    gameStorage.setEnabled(true)
+    const savedGame = gameStorage.load()
+    const restored = !currentGame.value && Boolean(savedGame)
+    if (restored) {
+      currentGame.value = savedGame
+      resetRoundEntries()
+    }
+    gameStorage.save(currentGame.value)
+    rememberGame.value = true
+    storageMessage.value = restored
+      ? 'Gespeichertes Spiel geladen. Änderungen werden auf diesem Gerät gespeichert.'
+      : 'Speichern aktiviert. Spielinformationen bleiben ausschließlich in diesem Browser.'
+  } catch {
+    reportStorageError()
+  }
+}
 
 watch(
   currentGame,
   (game) => {
-    if (game) {
-      localStorage.setItem(storageKey, JSON.stringify(game))
-      return
+    try {
+      gameStorage.save(game)
+    } catch {
+      reportStorageError()
     }
-
-    localStorage.removeItem(storageKey)
   },
   { deep: true },
 )
@@ -822,6 +855,28 @@ watch(
     </Transition>
   </main>
   <footer class="site-footer">
-    <a href="/impressum.html">Impressum</a>
+    <div class="storage-preference">
+      <label>
+        <input
+          type="checkbox"
+          :checked="rememberGame"
+          aria-describedby="storage-description"
+          @change="changeStoragePreference"
+        />
+        <span>Spiel auf diesem Gerät speichern und später fortsetzen</span>
+      </label>
+      <p id="storage-description">
+        Freiwillig: Namen und Spielstände bleiben bis zur Löschung in diesem Browser.
+        Aktivieren lädt ein vorhandenes Spiel, sofern gerade keines läuft.
+        Abwählen löscht die Speicherung. Ohne Speichern gehen Spielinformationen beim Verlassen oder Neuladen verloren.
+        <a href="/datenschutz.html#spielinformationen">Mehr zum Datenschutz</a>
+      </p>
+      <button class="storage-delete" type="button" @click="deleteSavedGame">Gespeicherte Daten löschen</button>
+      <p v-if="storageMessage" role="status">{{ storageMessage }}</p>
+    </div>
+    <nav aria-label="Rechtliche Informationen">
+      <a href="/impressum.html">Impressum</a>
+      <a href="/datenschutz.html">Datenschutz</a>
+    </nav>
   </footer>
 </template>
