@@ -821,4 +821,7 @@ watch(
       </div>
     </Transition>
   </main>
+  <footer class="site-footer">
+    <a href="/impressum.html">Impressum</a>
+  </footer>
 </template>
