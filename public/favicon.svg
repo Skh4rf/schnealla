@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Schnealla – goldene Schelle</title>
+  <defs>
+    <linearGradient id="felt" x2="1" y2="1">
+      <stop stop-color="#1c4d3d"/>
+      <stop offset="1" stop-color="#071c18"/>
+    </linearGradient>
+    <radialGradient id="gold" cx=".32" cy=".24" r=".85">
+      <stop stop-color="#fff0ae"/>
+      <stop offset=".5" stop-color="#f3c96f"/>
+      <stop offset="1" stop-color="#b77a22"/>
+    </radialGradient>
+    <clipPath id="bell"><circle cx="32" cy="35" r="21"/></clipPath>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#felt)"/>
+  <rect x="1" y="1" width="62" height="62" rx="14" fill="none" stroke="#f3c96f" stroke-opacity=".2"/>
+  <circle cx="32" cy="12" r="5" fill="none" stroke="#f3c96f" stroke-width="3"/>
+  <circle cx="32" cy="35" r="22" fill="#071c18" fill-opacity=".5"/>
+  <circle cx="32" cy="35" r="21" fill="url(#gold)"/>
+  <g clip-path="url(#bell)">
+    <path d="M10 21Q32 11 54 21V27Q32 18 10 27Z" fill="#b63832"/>
+    <path d="M10 47Q32 53 54 47V59H10Z" fill="#24724d"/>
+    <path d="M12 34Q32 41 52 34" fill="none" stroke="#98692c" stroke-width="1.5"/>
+    <path d="M32 44V57" fill="none" stroke="#49371e" stroke-width="3"/>
+    <circle cx="32" cy="43" r="3.5" fill="#49371e"/>
+    <path d="M19 30Q20 27 23 26" fill="none" stroke="#fff7df" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <circle cx="32" cy="35" r="21" fill="none" stroke="#f3c96f" stroke-width="1.5"/>
+</svg>
