@@ -1,6 +1,6 @@
 <script setup>
-import { computed, ref, watch, nextTick } from 'vue'
-import { createGameStorage } from './game-storage.js'
+import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { createGameStorage, preferenceKey } from './game-storage.js'
 
 const vFocus = {
   mounted(el) {
@@ -10,6 +10,7 @@ const vFocus = {
 const gameStorage = createGameStorage(() => window.localStorage)
 const rememberGame = ref(false)
 const storageMessage = ref('')
+const storageDialog = ref(null)
 const startPointOptions = [15, 21, 25]
 
 const players = ref(['', '', ''])
@@ -380,14 +381,15 @@ function deleteSavedGame() {
   }
 }
 
-function changeStoragePreference(event) {
-  if (!event.target.checked) {
+function applyStoragePreference(allowed) {
+  storageDialog.value?.close()
+  if (!allowed) {
     deleteSavedGame()
     return
   }
 
   try {
-    gameStorage.setEnabled(true)
+    gameStorage.rememberPreference(true)
     const savedGame = gameStorage.load()
     const restored = !currentGame.value && Boolean(savedGame)
     if (restored) {
@@ -403,6 +405,46 @@ function changeStoragePreference(event) {
     reportStorageError()
   }
 }
+
+function changeStoragePreference(event) {
+  applyStoragePreference(event.target.checked)
+}
+
+function restoreStoragePreference() {
+  try {
+    const preference = gameStorage.restorePreference()
+    rememberGame.value = preference === true
+    if (preference === null) {
+      if (!storageDialog.value.open) storageDialog.value.showModal()
+      return
+    }
+    storageDialog.value?.close()
+    if (preference && !currentGame.value) {
+      const savedGame = gameStorage.load()
+      if (savedGame) {
+        currentGame.value = savedGame
+        resetRoundEntries()
+        storageMessage.value = 'Gespeichertes Spiel automatisch geladen.'
+      }
+    }
+  } catch {
+    storageDialog.value?.close()
+    reportStorageError()
+  }
+}
+
+function syncStoragePreference(event) {
+  if (event.key === preferenceKey || event.key === null) {
+    restoreStoragePreference()
+  }
+}
+
+onMounted(() => {
+  restoreStoragePreference()
+  window.addEventListener('storage', syncStoragePreference)
+})
+
+onUnmounted(() => window.removeEventListener('storage', syncStoragePreference))
 
 watch(
   currentGame,
@@ -867,6 +909,7 @@ watch(
       </label>
       <p id="storage-description">
         Freiwillig: Namen und Spielstände bleiben bis zur Löschung in diesem Browser.
+        Deine Entscheidung wird gemerkt. Mit deiner Erlaubnis wird das Spiel künftig automatisch gespeichert und geladen.
         Aktivieren lädt ein vorhandenes Spiel, sofern gerade keines läuft.
         Abwählen löscht die Speicherung. Ohne Speichern gehen Spielinformationen beim Verlassen oder Neuladen verloren.
         <a href="/datenschutz.html#spielinformationen">Mehr zum Datenschutz</a>
@@ -879,4 +922,28 @@ watch(
       <a href="/datenschutz.html">Datenschutz</a>
     </nav>
   </footer>
+  <dialog
+    ref="storageDialog"
+    class="storage-dialog"
+    aria-labelledby="storage-dialog-title"
+    aria-describedby="storage-dialog-description"
+    @cancel.prevent="applyStoragePreference(false)"
+  >
+    <p class="eyebrow">Dein Spiel, dein Gerät</p>
+    <h2 id="storage-dialog-title">Spielstand für später speichern?</h2>
+    <p id="storage-dialog-description">
+      Wenn du erlaubst, speichern wir Namen und Spielstände nur in diesem Browser
+      und laden dein Spiel beim nächsten Besuch automatisch. Es wird nichts davon
+      an uns gesendet. Du kannst auch ohne Speichern spielen.
+    </p>
+    <p>
+      Deine Entscheidung wird gemerkt. Unten auf der Seite kannst du sie jederzeit
+      ändern und gespeicherte Daten löschen.
+      <a href="/datenschutz.html#spielinformationen">Mehr zum Datenschutz</a>
+    </p>
+    <div class="storage-dialog-actions">
+      <button type="button" @click="applyStoragePreference(false)">Ohne Speichern spielen</button>
+      <button type="button" @click="applyStoragePreference(true)">Speichern erlauben</button>
+    </div>
+  </dialog>
 </template>

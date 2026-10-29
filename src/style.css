@@ -112,6 +112,63 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+.storage-dialog {
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: clamp(20px, 5vw, 32px);
+  border: 1px solid rgba(247, 243, 232, 0.25);
+  border-radius: 20px;
+  background: #123a2e;
+  color: #f7f3e8;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  line-height: 1.65;
+}
+
+.storage-dialog::backdrop {
+  background: rgba(0, 12, 9, 0.75);
+}
+
+.storage-dialog h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 20px;
+}
+
+.storage-dialog a {
+  color: #f3c96f;
+  text-underline-offset: 3px;
+}
+
+.storage-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.storage-dialog-actions button {
+  flex: 1 1 180px;
+  min-height: 48px;
+  padding: 12px;
+  border: 1px solid rgba(247, 243, 232, 0.4);
+  border-radius: 10px;
+  background: #1c4d3d;
+  color: #fff7df;
+  font-weight: 700;
+}
+
+.storage-dialog-actions button:hover {
+  background: #28634f;
+}
+
+.storage-dialog :focus-visible {
+  outline: 2px solid #f3c96f;
+  outline-offset: 4px;
+}
+
 .legal-intro {
   margin: 20px 0 32px;
   color: #d4c8a7;
