@@ -73,7 +73,8 @@
           der geöffneten Seite und gehen beim Verlassen oder Neuladen verloren.
         </p>
         <p>
-          Nur wenn du „Spiel auf diesem Gerät speichern und später fortsetzen“
+          Nur wenn du im Hinweis beim ersten Besuch „Speichern erlauben“ wählst
+          oder unten „Spiel auf diesem Gerät speichern und später fortsetzen“
           aktivierst, liest und schreibt die Anwendung Spielinformationen im
           lokalen Browserspeicher (localStorage, Eintrag „schnealla.currentGame“).
           Beim Aktivieren wird ein gespeichertes Spiel geladen, sofern gerade
@@ -84,9 +85,19 @@
           Diese optionale Speicherung und das Auslesen erfolgen mit deiner
           freiwilligen Einwilligung gemäß § 165 Abs. 3 TKG 2021 und, soweit
           personenbezogene Daten betroffen sind, Art. 6 Abs. 1 lit. a DSGVO.
-          Die Speicherung ist standardmäßig ausgeschaltet. Du kannst ohne sie
-          spielen. Bei jedem erneuten Seitenaufruf musst du sie erneut aktivieren,
-          bevor die Anwendung gespeicherte Spielinformationen ausliest.
+          Ohne deine Erlaubnis ist die Speicherung ausgeschaltet. Du kannst ohne
+          sie spielen. Deine Zustimmung oder Ablehnung wird für weitere Besuche
+          gemerkt. Nach einer Zustimmung werden Spiele automatisch gespeichert
+          und beim nächsten Besuch geladen, bis du die Speicherung ausschaltest.
+        </p>
+        <p>
+          Zum Merken deiner Entscheidung wird „schnealla.storagePreference“ im
+          localStorage gespeichert und beim Seitenaufruf gelesen. Der Eintrag
+          enthält nur Zustimmung oder Ablehnung und eine feste Versionsangabe,
+          keine eindeutige Kennung. Er dient ausschließlich der Verwaltung deiner
+          Auswahl und ist dafür nach § 165 Abs. 3 TKG 2021 erforderlich. Er bleibt
+          bis zu einer Änderung deiner Auswahl oder zum Löschen der Website-Daten
+          im Browser bestehen. Nach dem Löschen wird erneut gefragt.
         </p>
         <p>
           Die Daten bleiben bis zu ihrer Löschung im Browser gespeichert; sie

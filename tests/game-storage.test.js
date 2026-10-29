@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStorage, storageKey } from '../src/game-storage.js'
+import { createGameStorage, storageKey, preferenceKey } from '../src/game-storage.js'
 
 const game = {
   startPoints: 21,
@@ -8,18 +8,21 @@ const game = {
   rounds: [],
 }
 
-function fixture(saved = null) {
+function fixture(saved = null, preference = null) {
   const entries = new Map(saved === null ? [] : [[storageKey, saved]])
+  if (preference !== null) entries.set(preferenceKey, preference)
   const calls = []
-  const persistence = createGameStorage(() => {
+  const reads = []
+  const getStorage = () => {
     calls.push('access')
     return {
-      getItem: (key) => entries.get(key) ?? null,
+      getItem: (key) => { reads.push(key); return entries.get(key) ?? null },
       setItem: (key, value) => entries.set(key, value),
       removeItem: (key) => entries.delete(key),
     }
-  })
-  return { persistence, entries, calls }
+  }
+  const persistence = createGameStorage(getStorage)
+  return { persistence, entries, calls, reads, getStorage }
 }
 
 test('no storage access on load or score changes without opt-in, including existing games', () => {
@@ -80,5 +83,61 @@ test('blocked storage is not touched before opt-in and errors can be handled by 
   persistence.setEnabled(true)
   assert.throws(() => persistence.load(), /Storage blocked/)
   persistence.setEnabled(false)
+  persistence.save(game)
+})
+
+test('first visit reads only the preference, never a legacy saved game', () => {
+  const { persistence, reads } = fixture(JSON.stringify(game))
+  assert.equal(persistence.restorePreference(), null)
+  assert.equal(persistence.load(), null)
+  assert.deepEqual(reads, [preferenceKey])
+})
+
+test('acceptance is remembered and a new visit can automatically restore the game', () => {
+  const { persistence, getStorage } = fixture()
+  persistence.rememberPreference(true)
+  persistence.save(game)
+  const nextVisit = createGameStorage(getStorage)
+  assert.equal(nextVisit.restorePreference(), true)
+  assert.deepEqual(nextVisit.load(), game)
+})
+
+test('rejection is remembered on future visits without reading or writing game data', () => {
+  const { persistence, getStorage, reads, entries } = fixture(JSON.stringify(game))
+  persistence.clear()
+  const nextVisit = createGameStorage(getStorage)
+  assert.equal(nextVisit.restorePreference(), false)
+  assert.equal(nextVisit.load(), null)
+  nextVisit.save(game)
+  assert.deepEqual(reads, [preferenceKey])
+  assert.equal(entries.has(storageKey), false)
+})
+
+test('withdrawal replaces an existing grant and stops saving across visits', () => {
+  const { persistence, getStorage, entries } = fixture(JSON.stringify(game), 'granted-v1')
+  assert.equal(persistence.restorePreference(), true)
+  persistence.clear()
+  const nextVisit = createGameStorage(getStorage)
+  assert.equal(nextVisit.restorePreference(), false)
+  nextVisit.save(game)
+  assert.equal(entries.has(storageKey), false)
+})
+
+test('unknown consent values require a new decision and do not restore a game', () => {
+  for (const preference of ['true', 'granted-v0', '{}', '']) {
+    const { persistence, reads } = fixture(JSON.stringify(game), preference)
+    assert.equal(persistence.restorePreference(), null)
+    assert.equal(persistence.load(), null)
+    assert.deepEqual(reads, [preferenceKey])
+  }
+})
+
+test('a failed preference write never enables game storage', () => {
+  const persistence = createGameStorage(() => ({
+    setItem() { throw new Error('Storage full') },
+    getItem() { throw new Error('Game must not be read') },
+  }))
+  assert.throws(() => persistence.rememberPreference(true), /Storage full/)
+  assert.equal(persistence.load(), null)
   persistence.save(game)
 })

@@ -51,10 +51,12 @@ Deployments laufen ueber GitHub Actions aus `.github/workflows/deploy.yml`.
 
 ## Datenschutz
 
-Die Anwendung liest oder schreibt Spielinformationen erst nach Aktivierung der
-freiwilligen Speicheroption im localStorage. Die Option ist bei jedem Seitenaufruf
-standardmaessig aus. Abwaehlen oder "Gespeicherte Daten loeschen" entfernt den
-Eintrag; das laufende Spiel bleibt im Arbeitsspeicher erhalten. Es werden keine
+Beim ersten Besuch fragt ein Dialog nach der freiwilligen lokalen Speicherung.
+Zustimmung und Ablehnung werden ohne eindeutige Kennung in
+`schnealla.storagePreference` gemerkt. Nur bei Zustimmung werden Spielinformationen
+gelesen und automatisch gespeichert und wiederhergestellt. Die Auswahl bleibt im
+Seitenfuss aenderbar. Abwaehlen oder "Gespeicherte Daten loeschen" entfernt den
+Spielstand und merkt die Ablehnung; das laufende Spiel bleibt im Arbeitsspeicher erhalten. Es werden keine
 Analyse- oder Werbedienste eingebunden.
 
 Datenschutzkontakt: schnealla@j-metzler.at. Die Weiterleitung muss vor der

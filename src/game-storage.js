@@ -1,10 +1,25 @@
 export const storageKey = 'schnealla.currentGame'
+export const preferenceKey = 'schnealla.storagePreference'
 
-// Access browser storage only after the user enables saving or requests deletion.
+// Only the anonymous consent preference may be read before game-storage opt-in.
 export function createGameStorage(getStorage) {
   let enabled = false
 
   return {
+    restorePreference() {
+      enabled = false
+      const preference = getStorage().getItem(preferenceKey)
+      if (preference === 'granted-v1') {
+        enabled = true
+        return true
+      }
+      return preference === 'denied-v1' ? false : null
+    },
+    rememberPreference(value) {
+      enabled = false
+      getStorage().setItem(preferenceKey, value ? 'granted-v1' : 'denied-v1')
+      enabled = value
+    },
     setEnabled(value) {
       enabled = value
     },
@@ -37,7 +52,12 @@ export function createGameStorage(getStorage) {
     },
     clear() {
       enabled = false
-      getStorage().removeItem(storageKey)
+      const storage = getStorage()
+      try {
+        storage.removeItem(storageKey)
+      } finally {
+        storage.setItem(preferenceKey, 'denied-v1')
+      }
     },
   }
 }
