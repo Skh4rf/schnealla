@@ -57,7 +57,7 @@ standardmaessig aus. Abwaehlen oder "Gespeicherte Daten loeschen" entfernt den
 Eintrag; das laufende Spiel bleibt im Arbeitsspeicher erhalten. Es werden keine
 Analyse- oder Werbedienste eingebunden.
 
-Datenschutzkontakt: schnealla@j-metzler.at. Die Weiterleitung muss vor der
+Datenschutzkontakt: schnealla@alpenjodel.de. Die Weiterleitung muss vor der
 Veroeffentlichung eingerichtet und auf Zustellung geprueft sein.
 
 Tests fuer Speicherung und Widerruf:
