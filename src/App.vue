@@ -1065,7 +1065,8 @@ watch(
     </p>
     <div class="storage-dialog-actions">
       <button type="button" @click="savePrivacyChoices(false, false)">Nur notwendige</button>
-      <button type="button" @click="savePrivacyChoices(draftSaveGame, draftAnalytics)">Auswahl speichern</button>
+      <button type="button" @click="savePrivacyChoices(true, true)">Allen zustimmen</button>
+      <button class="privacy-selection" type="button" @click="savePrivacyChoices(draftSaveGame, draftAnalytics)">Auswahl speichern</button>
     </div>
   </dialog>
 </template>

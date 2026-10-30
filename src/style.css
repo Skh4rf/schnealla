@@ -164,6 +164,10 @@
   background: #28634f;
 }
 
+.storage-dialog-actions .privacy-selection {
+  flex-basis: 100%;
+}
+
 .storage-dialog :focus-visible {
   outline: 2px solid #f3c96f;
   outline-offset: 4px;
