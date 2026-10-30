@@ -164,8 +164,24 @@
   background: #28634f;
 }
 
-.storage-dialog-actions .privacy-selection {
-  flex-basis: 100%;
+.storage-dialog .privacy-selection {
+  display: block;
+  min-height: 44px;
+  margin: 8px auto 0;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #d4c8a7;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.storage-dialog .privacy-selection:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff7df;
 }
 
 .storage-dialog :focus-visible {
