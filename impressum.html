@@ -39,6 +39,16 @@
       <nav class="legal-purpose" aria-label="Rechtliche Informationen">
         <a href="/datenschutz.html">Datenschutzerklärung</a>
       </nav>
+      <section class="legal-purpose" aria-labelledby="analytics-settings-title">
+        <h2 id="analytics-settings-title">Datenschutz-Auswahl</h2>
+        <label class="privacy-option">
+          <input type="checkbox" data-analytics-toggle aria-describedby="analytics-settings-status" />
+          <span>Besuchsstatistik mit Umami erlauben</span>
+        </label>
+        <p id="analytics-settings-status" data-analytics-status role="status"></p>
+        <p>Freiwillig. <a href="/datenschutz.html#analytics">Details zu Daten, Empfängern und Widerruf</a>.</p>
+      </section>
     </main>
+    <script type="module" src="/src/analytics-page.js"></script>
   </body>
 </html>

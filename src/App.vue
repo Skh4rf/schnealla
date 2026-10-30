@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import { createGameStorage, preferenceKey } from './game-storage.js'
 import { moveGamePlayer } from './player-order.js'
+import { analytics } from './analytics.js'
 
 const vFocus = {
   mounted(el) {
@@ -12,6 +13,13 @@ const gameStorage = createGameStorage(() => window.localStorage)
 const rememberGame = ref(false)
 const storageMessage = ref('')
 const storageDialog = ref(null)
+const gamePreference = ref(null)
+const analyticsPreference = ref(null)
+const analyticsMessage = ref('')
+const draftSaveGame = ref(false)
+const draftAnalytics = ref(false)
+let privacyReady = false
+let unsubscribeAnalytics = () => {}
 const startPointOptions = [15, 21, 25]
 
 const players = ref(['', '', ''])
@@ -379,6 +387,7 @@ function commitScoreEdit() {
 }
 
 function reportStorageError() {
+  gamePreference.value = false
   rememberGame.value = false
   gameStorage.setEnabled(false)
   storageMessage.value = 'Browserspeicher nicht verfügbar. Du kannst ohne Speichern weiterspielen. Vorhandene Daten kannst du in den Website-Daten deines Browsers löschen.'
@@ -388,6 +397,7 @@ function deleteSavedGame() {
   rememberGame.value = false
   try {
     gameStorage.clear()
+    gamePreference.value = false
     storageMessage.value = 'Gespeicherte Daten gelöscht. Das laufende Spiel bleibt bis zum Verlassen der Seite erhalten.'
   } catch {
     reportStorageError()
@@ -403,6 +413,7 @@ function applyStoragePreference(allowed) {
 
   try {
     gameStorage.rememberPreference(true)
+    gamePreference.value = true
     const savedGame = gameStorage.load()
     const restored = !currentGame.value && Boolean(savedGame)
     if (restored) {
@@ -426,12 +437,11 @@ function changeStoragePreference(event) {
 function restoreStoragePreference() {
   try {
     const preference = gameStorage.restorePreference()
+    gamePreference.value = preference
     rememberGame.value = preference === true
     if (preference === null) {
-      if (!storageDialog.value.open) storageDialog.value.showModal()
       return
     }
-    storageDialog.value?.close()
     if (preference && !currentGame.value) {
       const savedGame = gameStorage.load()
       if (savedGame) {
@@ -449,15 +459,46 @@ function restoreStoragePreference() {
 function syncStoragePreference(event) {
   if (event.key === preferenceKey || event.key === null) {
     restoreStoragePreference()
+    updatePrivacyDialog()
   }
 }
 
+function updatePrivacyDialog() {
+  if (!privacyReady) return
+  if (gamePreference.value === null || analyticsPreference.value === null) {
+    if (!storageDialog.value.open) {
+      draftSaveGame.value = rememberGame.value
+      draftAnalytics.value = analyticsPreference.value === true
+      storageDialog.value.showModal()
+    }
+  } else storageDialog.value.close()
+}
+
+function savePrivacyChoices(saveGame, allowAnalytics) {
+  applyStoragePreference(saveGame)
+  analytics.setPreference(allowAnalytics)
+  storageDialog.value.close()
+}
+
 onMounted(() => {
+  unsubscribeAnalytics = analytics.subscribe(({ preference, error }) => {
+    analyticsPreference.value = preference
+    analyticsMessage.value = error
+    updatePrivacyDialog()
+  })
+  analytics.init()
   restoreStoragePreference()
+  privacyReady = true
+  updatePrivacyDialog()
   window.addEventListener('storage', syncStoragePreference)
 })
 
-onUnmounted(() => window.removeEventListener('storage', syncStoragePreference))
+onUnmounted(() => {
+  privacyReady = false
+  unsubscribeAnalytics()
+  analytics.destroy()
+  window.removeEventListener('storage', syncStoragePreference)
+})
 
 watch(
   currentGame,
@@ -970,6 +1011,23 @@ watch(
       <button class="storage-delete" type="button" @click="deleteSavedGame">Gespeicherte Daten löschen</button>
       <p v-if="storageMessage" role="status">{{ storageMessage }}</p>
     </div>
+    <div class="storage-preference">
+      <label>
+        <input
+          type="checkbox"
+          :checked="analyticsPreference === true"
+          aria-describedby="analytics-description"
+          @change="analytics.setPreference($event.target.checked)"
+        />
+        <span>Besuchsstatistik mit Umami erlauben</span>
+      </label>
+      <p id="analytics-description">
+        Freiwillig und unabhängig vom Spielspeicher. Erfasst Seitenaufrufe und technische Besuchsdaten,
+        keine Spielernamen oder Punktestände. Abwählen beendet die weitere Erfassung.
+        <a href="/datenschutz.html#analytics">Mehr zu Umami</a>
+      </p>
+      <p v-if="analyticsMessage" role="status">{{ analyticsMessage }}</p>
+    </div>
     <nav aria-label="Rechtliche Informationen">
       <a href="/impressum.html">Impressum</a>
       <a href="/datenschutz.html">Datenschutz</a>
@@ -980,23 +1038,34 @@ watch(
     class="storage-dialog"
     aria-labelledby="storage-dialog-title"
     aria-describedby="storage-dialog-description"
-    @cancel.prevent="applyStoragePreference(false)"
+    @cancel.prevent="savePrivacyChoices(false, false)"
   >
     <p class="eyebrow">Dein Spiel, dein Gerät</p>
-    <h2 id="storage-dialog-title">Spielstand für später speichern?</h2>
+    <h2 id="storage-dialog-title">Deine Datenschutz-Auswahl</h2>
     <p id="storage-dialog-description">
-      Wenn du erlaubst, speichern wir Namen und Spielstände nur in diesem Browser
-      und laden dein Spiel beim nächsten Besuch automatisch. Es wird nichts davon
-      an uns gesendet. Du kannst auch ohne Speichern spielen.
+      Beide Funktionen sind freiwillig und unabhängig. Du kannst ohne sie spielen.
+      Deine Auswahl wird gemerkt und bleibt unten auf der Seite jederzeit änderbar.
     </p>
+    <label class="privacy-option">
+      <input v-model="draftSaveGame" type="checkbox" />
+      <span><strong>Spiel auf diesem Gerät speichern</strong><br />
+        Namen und Spielstände bleiben nur in diesem Browser und werden beim nächsten Besuch geladen.</span>
+    </label>
+    <label class="privacy-option">
+      <input v-model="draftAnalytics" type="checkbox" />
+      <span><strong>Besuchsstatistik mit Umami erlauben</strong><br />
+        Umami Cloud (EU-Region) erhält Seitenaufrufe und technische Besuchsdaten zur Auswertung,
+        keine Spielernamen oder Punktestände. Analytics-Daten bleiben bis zu sechs Monate gespeichert.
+        <a href="/datenschutz.html#analytics">Details zu Daten und Empfängern</a></span>
+    </label>
     <p>
       Deine Entscheidung wird gemerkt. Unten auf der Seite kannst du sie jederzeit
       ändern und gespeicherte Daten löschen.
       <a href="/datenschutz.html#spielinformationen">Mehr zum Datenschutz</a>
     </p>
     <div class="storage-dialog-actions">
-      <button type="button" @click="applyStoragePreference(false)">Ohne Speichern spielen</button>
-      <button type="button" @click="applyStoragePreference(true)">Speichern erlauben</button>
+      <button type="button" @click="savePrivacyChoices(false, false)">Nur notwendige</button>
+      <button type="button" @click="savePrivacyChoices(draftSaveGame, draftAnalytics)">Auswahl speichern</button>
     </div>
   </dialog>
 </template>
