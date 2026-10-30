@@ -69,7 +69,9 @@ bestaetigt. Diese Angaben in der Datenschutzerklaerung bei Tarifwechsel aktualis
 Umami wird auf allen drei Seiten nur nach separater Analytics-Einwilligung geladen.
 Die anonym gehaltene Auswahl wird unter `schnealla.analyticsPreference` gemerkt.
 Bestehende Erlaubnisse fuer Spielspeicherung aktivieren Analytics nicht.
-Das erweiterte Popup bietet getrennte Optionen und "Nur notwendige".
+Das erweiterte Popup bietet getrennte Optionen, "Nur notwendige", "Allen zustimmen"
+und "Auswahl speichern". "Allen zustimmen" aktiviert Spielspeicherung und Analytics
+mit einem Klick; die Kontrollkaestchen sind bei einer neuen Auswahl nicht vorausgewaehlt.
 Auswahl und Widerruf sind im Seitenfuss sowie auf beiden Rechteseiten erreichbar.
 
 Nur `schnealla.j-metzler.at` sendet Statistikdaten; localhost und Vorschauen laden
